@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>登山に関する知識１～４ 小テスト ©Takahiro Iimura</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Yu Gothic", sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 0.4rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.6rem; border-left: 6px solid #666; padding-left: 6px; }
+    h3 { font-size: 1.0rem; margin-top: 1.0rem; }
+
+    p, label { margin-top: 0.4rem; }
+    input[type="text"] {
+      padding: 3px 4px;
+      min-width: 90px;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      font-size: 0.9rem;
+      padding: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 0.3rem;
+      margin-right: 0.3rem;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .question-block {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-top: 0.6rem;
+      background: #fafafa;
+    }
+    .q-text {
+      margin-bottom: 0.3rem;
+      white-space: pre-wrap;
+    }
+    .model-answer {
+      margin-top: 0.3rem;
+      padding: 6px 8px;
+      border-left: 4px solid #999;
+      background: #f4f4f4;
+      display: none;
+      font-size: 0.9rem;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .free-answer-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .tabs {
+      margin: 8px 0 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tab-button {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      border: 1px solid #888;
+      background: #fdfdfd;
+      cursor: pointer;
+    }
+    .tab-button.active {
+      background: #333;
+      color: #fff;
+      border-color: #333;
+    }
+
+    .controls {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 8px 0 4px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 8px;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .name-label {
+      font-size: 0.9rem;
+      margin-right: 4px;
+    }
+    #studentName {
+      padding: 4px 6px;
+      font-size: 0.9rem;
+      min-width: 10em;
+    }
+    .result {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .quiz-section {
+      display: none;
+    }
+
+    .correct {
+      background: #d9fdd3;
+    }
+    .incorrect {
+      background: #ffd6d6;
+    }
+
+    /* 採点結果モーダル */
+    #modalOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    #modalBox {
+      background: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      min-width: 260px;
+      max-width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #modalScore {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+    #modalId {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+    #modalOkBtn {
+      padding: 6px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: #777;
+      color: #fff;
+    }
+    #modalOkBtn:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 600px) {
+      body { margin: 12px; }
+      input[type="text"] { min-width: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>登山に関する知識１～４ 小テスト</h1>
+
+  <ul class="note">
+    <li>空欄に適切な語句を入力してください。</li>
+    <li>正解は <span style="color:green;">緑</span>、不正解は <span style="color:red;">赤</span> で表示されます。（※実際は背景色で表示）</li>
+    <li>氏名はアルファベットで入力してください（例：Iimura）。</li>
+    <li>「模範解答を表示」ボタンで、各設問の下に模範解答が表示されます。</li>
+  </ul>
+
+  <!-- タブ -->
+  <div class="tabs">
+    <button class="tab-button active" onclick="showSection(1)">知識１：読図</button>
+    <button class="tab-button" onclick="showSection(2)">知識２：気象・観天望気</button>
+    <button class="tab-button" onclick="showSection(3)">知識３：登山用語</button>
+    <button class="tab-button" onclick="showSection(4)">知識４：その他</button>
+  </div>
+
+  <!-- 共通操作 -->
+  <div class="controls">
+    <span class="name-label">氏名（Surname / Alphabet）：</span>
+    <input type="text" id="studentName" placeholder="Iimura" />
+    <button type="button" onclick="checkAnswers()">採点する</button>
+    <button type="button" onclick="showAllAnswers()">模範解答を表示</button>
+    <button type="button" onclick="resetAll()">入力をリセット</button>
+    <span class="result" id="resultArea"></span>
+  </div>
+
+  <!-- ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+       知識１ 読図
+       ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ -->
+  <div class="quiz-section" id="section1" style="display:block;">
+    <h2>登山に関する知識１　〇読図に関する知識</h2>
+
+    <!-- No.1-1 地図記号（自動採点なし） -->
+    <div class="question-block">
+      <div class="q-text">
+① 地図記号を記せ。<br>
+※この設問は「地図記号の形」をノート等に書く問題です。ここでは自動採点を行いません。
+      </div>
+      <div class="note">
+        三角点／水準点／市役所／町村役場／警察署／交番／消防署／郵便局／工場／発電所／小中学校／高等学校／病院／神社／寺院／高塔／煙突／電波塔／灯台／噴火口／採石地／田／畑牧草地／果樹園／桑畑／茶畑／広葉樹林／針葉樹林／はい松地／荒地 など
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q1')">模範解答を表示</button>
+      <div id="m_no1_q1" class="model-answer">
+        教員用メモ：Excel「No.1解答」シートの①の行にある地図記号一覧を参照してください。
+      </div>
+    </div>
+
+    <!-- No.1-2 磁北と偏角 -->
+    <div class="question-block">
+      <div class="q-text">
+② 磁石の示す北　
+        <input type="text" class="blank" data-answer="磁北" />
+        　と真北は一致していない。<br>
+　　この差を　
+        <input type="text" class="blank" data-answer="偏角|磁針偏差" />
+        　という。　茨城県は　
+        <input type="text" class="blank" data-answer="西" />
+        　に約　
+        <input type="text" class="blank" data-answer="６～７|6～7|６〜７|6〜7" />
+        　度ずれている。
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q2')">模範解答を表示</button>
+      <div id="m_no1_q2" class="model-answer">
+        磁北／偏角（磁針偏差）／西／約６～７度
+      </div>
+    </div>
+
+    <!-- No.1-3 時計による方位 -->
+    <div class="question-block">
+      <div class="q-text">
+③ 時計による方位の見方は<br>
+　　　　　　 
+        <input type="text" class="blank" style="min-width:260px;"
+               data-answer="短針を太陽へ向け、１２時と短針の真ん中が南|短針を太陽へ向け12時と短針の真ん中が南" />
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q3')">模範解答を表示</button>
+      <div id="m_no1_q3" class="model-answer">
+        短針を太陽へ向け、１２時と短針の真ん中が南である。
+      </div>
+    </div>
+
+    <!-- No.1-4 三角点と方位 -->
+    <div class="question-block">
+      <div class="q-text">
+④ 三角点で文字のかいてある方が　
+        <input type="text" class="blank" data-answer="南" />
+        　である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q4')">模範解答を表示</button>
+      <div id="m_no1_q4" class="model-answer">
+        南
+      </div>
+    </div>
+
+    <!-- No.1-5 等高線 -->
+    <div class="question-block">
+      <div class="q-text">
+⑤ 地形図　
+        <input type="text" class="blank" data-answer="２万５千分の１|2万5千分の1|二万五千分の一" />
+        　で等高線は、１０ｍごとに　
+        <input type="text" class="blank" data-answer="主曲線" />
+        　、　５０ｍごとに　
+        <input type="text" class="blank" data-answer="計曲線" />
+        　という。
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q5')">模範解答を表示</button>
+      <div id="m_no1_q5" class="model-answer">
+        ２万５千分の１／主曲線／計曲線
+      </div>
+    </div>
+
+    <!-- No.1-6 ５万分の１地形図 -->
+    <div class="question-block">
+      <div class="q-text">
+⑥ 地形図　
+        <input type="text" class="blank" data-answer="５万分の１|5万分の1|五万分の一" />
+        　で、
+        <input type="text" class="blank" data-answer="等高線" />
+        　は、主曲線は　
+        <input type="text" class="blank" data-answer="２０ｍ|20m|20" />
+        　、　計曲線は１００ｍごとに出てくる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q6')">模範解答を表示</button>
+      <div id="m_no1_q6" class="model-answer">
+        ５万分の１／等高線／主曲線２０ｍ／計曲線１００ｍ
+      </div>
+    </div>
+
+    <!-- No.1-7 縮尺と実距離 -->
+    <div class="question-block">
+      <div class="q-text">
+⑦ 地形図　
+        <input type="text" class="blank" data-answer="２万５千分の１|2万5千分の1|二万五千分の一" />
+        　で、１ｍｍは　
+        <input type="text" class="blank" data-answer="２５|25" />
+        　ｍ、　１ｃｍは　
+        <input type="text" class="blank" data-answer="２５０|250" />
+        　ｍが実際の距離である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no1_q7')">模範解答を表示</button>
+      <div id="m_no1_q7" class="model-answer">
+        ２万５千分の１／１ｍｍ＝２５ｍ／１ｃｍ＝２５０ｍ
+      </div>
+    </div>
+  </div>
+
+  <!-- ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+       知識２ 気象・観天望気
+       ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ -->
+  <div class="quiz-section" id="section2">
+    <h2>登山に関する知識２　〇気象・観天望気に関する問題</h2>
+
+    <!-- 自由記述：観天望気 -->
+    <div class="question-block">
+      <div class="q-text">
+① 観天望気とは何か、説明しなさい。
+      </div>
+      <div class="free-answer-label">自分のことばで説明：</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no2_q1')">模範解答を表示</button>
+      <div id="m_no2_q1" class="model-answer">
+        雲の動きや風の吹き方、気温変化などの気象現象を観察して天気を予測すること。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+② 温暖前線とは、　
+        <input type="text" class="blank" data-answer="暖気団" />
+        　が　
+        <input type="text" class="blank" data-answer="寒気団" />
+        　の上に
+        <input type="text" class="blank" data-answer="のし上がって" />
+        
+        <input type="text" class="blank" data-answer="上昇気流" />
+        　となり雨が降る。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q2')">模範解答を表示</button>
+      <div id="m_no2_q2" class="model-answer">
+        暖気団／寒気団／のし上がって／上昇気流
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+③ 寒冷前線とは、　
+        <input type="text" class="blank" data-answer="寒気団" />
+        　が　
+        <input type="text" class="blank" data-answer="暖気団" />
+        　の下にもぐり込み、暖気団を　
+        <input type="text" class="blank" data-answer="押し上げ" />
+        　雨を降らせる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q3')">模範解答を表示</button>
+      <div id="m_no2_q3" class="model-answer">
+        寒気団／暖気団／もぐり込み／押し上げ
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+④ 梅雨前線とは、　
+        <input type="text" class="blank" data-answer="小笠原気団" />
+        　と　
+        <input type="text" class="blank" data-answer="オホーツク気団" />
+        　が日本付近で境界をつくる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q4')">模範解答を表示</button>
+      <div id="m_no2_q4" class="model-answer">
+        小笠原気団／オホーツク気団
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑤ 強い日射をうけて上昇気流が起き、発生する雷を　
+        <input type="text" class="blank" data-answer="熱雷" />
+        　という。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q5')">模範解答を表示</button>
+      <div id="m_no2_q5" class="model-answer">
+        熱雷
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑥ 寒冷前線付近の上昇気流がもとで、発生する雷を　
+        <input type="text" class="blank" data-answer="界雷" />
+        　という。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q6')">模範解答を表示</button>
+      <div id="m_no2_q6" class="model-answer">
+        界雷
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑦ 熱雷と界雷が合わさると　
+        <input type="text" class="blank" data-answer="熱界雷|熱的界雷|熱（的）界雷" />
+        　という。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q7')">模範解答を表示</button>
+      <div id="m_no2_q7" class="model-answer">
+        熱界雷（熱的界雷）
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑧ 雷までの距離（ｍ）は、　
+        <input type="text" class="blank"
+               data-answer="３４０×稲妻から雷鳴までの秒数|340×稲妻から雷鳴までの秒数" />
+        　で求められる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q8')">模範解答を表示</button>
+      <div id="m_no2_q8" class="model-answer">
+        ３４０ × 稲妻から雷鳴までの秒数（ｍ）
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑨ 寒冷前線や雷の時に生じる対流性の雲を　
+        <input type="text" class="blank" data-answer="積乱雲" />
+        　という。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q9')">模範解答を表示</button>
+      <div id="m_no2_q9" class="model-answer">
+        積乱雲
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑩ 高度１００ｍ登ると、気温は約　
+        <input type="text" class="blank" data-answer="０．６|0.6" />
+        　度下がる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q10')">模範解答を表示</button>
+      <div id="m_no2_q10" class="model-answer">
+        約０．６度
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑪ 風速　１ｍ／ｓで　
+        <input type="text" class="blank" data-answer="体感温度" />
+        　は約　
+        <input type="text" class="blank" data-answer="１|1" />
+        　度下がる。
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q11')">模範解答を表示</button>
+      <div id="m_no2_q11" class="model-answer">
+        体感温度／約１度
+      </div>
+    </div>
+
+    <!-- 天気図記号：自動採点なし -->
+    <div class="question-block">
+      <div class="q-text">
+⑫ 天気図用記号<br>
+次の語の天気図記号をノートに書きなさい（ここでは自動採点を行いません）。
+      </div>
+      <div class="note">
+        快晴／晴／薄曇／曇／雨／雪／みぞれ／霧・氷霧／煙霧／砂じん／地ふぶき／雷／ひょう／あられ／天気不明／風力１／風力７／寒冷前線／温暖前線／停滞前線／閉塞前線
+      </div>
+      <button type="button" onclick="toggleModel('m_no2_q12')">模範解答を表示</button>
+      <div id="m_no2_q12" class="model-answer">
+        教員用メモ：Excel「No.2解答」シートの⑫の行にある一覧を参照し、JMA の公式記号に合わせて指導してください。
+      </div>
+    </div>
+  </div>
+
+  <!-- ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+       知識３ 登山用語
+       ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ -->
+  <div class="quiz-section" id="section3">
+    <h2>登山に関する知識３　〇登山に関する用語</h2>
+    <p class="note">※このページでは、自分のことばで説明を書き、「模範解答」で確認する形式（自動採点なし）。</p>
+
+    <div class="question-block">
+      <div class="q-text">① トラバースを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q1')">模範解答を表示</button>
+      <div id="m_no3_q1" class="model-answer">
+        山腹・岩壁を横切ること。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">② ビバークを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q2')">模範解答を表示</button>
+      <div id="m_no3_q2" class="model-answer">
+        テントを用いないで、ツエルトや岩陰などを利用し野宿すること。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">③ ツェルトを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q3')">模範解答を表示</button>
+      <div id="m_no3_q3" class="model-answer">
+        ビバーク用の簡易テントのこと。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">④ ケルンを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q4')">模範解答を表示</button>
+      <div id="m_no3_q4" class="model-answer">
+        山頂や登山道などに道しるべとして石をピラミッド型に積み上げたもの。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑤ コル（鞍部）を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q5')">模範解答を表示</button>
+      <div id="m_no3_q5" class="model-answer">
+        峰と峰との稜線上で低くなったところ。コル、タル、タワ、タルミ、乗っ越しともいわれる。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑥ 稜線を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q6')">模範解答を表示</button>
+      <div id="m_no3_q6" class="model-answer">
+        峰から峰へと続く線のこと。峰と峰とを結ぶ主脈を稜線、頂上と平地を結ぶ支脈を尾根という場合もある。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑦ 右岸を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q7')">模範解答を表示</button>
+      <div id="m_no3_q7" class="model-answer">
+        川や沢で上流から下流を見て右側の岸。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑧ 縦走を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q8')">模範解答を表示</button>
+      <div id="m_no3_q8" class="model-answer">
+        山頂から次の山頂へと尾根伝いに歩く登山形式のこと。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑨ ベースキャンプを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q9')">模範解答を表示</button>
+      <div id="m_no3_q9" class="model-answer">
+        アタックなどを行う際の山中の基地。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑩ アプローチを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q10')">模範解答を表示</button>
+      <div id="m_no3_q10" class="model-answer">
+        登山口までの行程。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑪ キレットを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q11')">模範解答を表示</button>
+      <div id="m_no3_q11" class="model-answer">
+        稜線が鋭く深く切れ込んでいる所。切戸。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑫ 三点確保を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q12')">模範解答を表示</button>
+      <div id="m_no3_q12" class="model-answer">
+        両手両足の４点のうち、常に３点で体を確保したうえ、空いている手足を使って登降する方法。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑬ 予備食を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q13')">模範解答を表示</button>
+      <div id="m_no3_q13" class="model-answer">
+        日程が延びてしまったときのために準備しておく予備の食料。非常食とは区別される。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑭ 非常食を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q14')">模範解答を表示</button>
+      <div id="m_no3_q14" class="model-answer">
+        非常時に備えて常に携行する、調理をしなくても食べられる食料。予備食とは区別される。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑮ 森林限界を説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q15')">模範解答を表示</button>
+      <div id="m_no3_q15" class="model-answer">
+        低温や乾燥のために高木が生育できなくなる高度のこと。
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">⑯ アンザイレンを説明しなさい。</div>
+      <textarea></textarea>
+      <button type="button" onclick="toggleModel('m_no3_q16')">模範解答を表示</button>
+      <div id="m_no3_q16" class="model-answer">
+        二人以上がお互いを確保するためザイルで体を結び合うこと。
+      </div>
+    </div>
+  </div>
+
+  <!-- ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+       知識４ その他
+       ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ -->
+  <div class="quiz-section" id="section4">
+    <h2>登山に関する知識４　〇その他の項目</h2>
+
+    <div class="question-block">
+      <div class="q-text">
+① ピンクの花で高山植物の女王といわれているのは　
+        <input type="text" class="blank" data-answer="コマクサ" />
+        　である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q1')">模範解答を表示</button>
+      <div id="m_no4_q1" class="model-answer">
+        コマクサ
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+② 高山帯に住む特別天然記念物の鳥で、夏羽は黒と茶の斑で、冬羽は純白なのは、<br>
+　　 
+        <input type="text" class="blank" data-answer="ライチョウ" />
+        　である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q2')">模範解答を表示</button>
+      <div id="m_no4_q2" class="model-answer">
+        ライチョウ
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+③ 筑波山から加波山で産出する代表的な石は、
+        <input type="text" class="blank" data-answer="花崗岩" />
+        　である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q3')">模範解答を表示</button>
+      <div id="m_no4_q3" class="model-answer">
+        花崗岩
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+④ 三大栄養素とは、
+        <input type="text" class="blank" data-answer="脂肪" />
+        　
+        <input type="text" class="blank" data-answer="たん白質|たんぱく質|タンパク質" />
+        　
+        <input type="text" class="blank" data-answer="炭水化物" />
+        　である。
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q4')">模範解答を表示</button>
+      <div id="m_no4_q4" class="model-answer">
+        脂肪／たん白質（たんぱく質）／炭水化物
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑤ 登山の食料の選び方：次の条件を満たすものが望ましい。<br>
+　　 
+        <input type="text" class="blank" data-answer="軽い" /><br>
+　　 
+        <input type="text" class="blank" data-answer="腐敗しにくい|腐りにくい" /><br>
+　　 
+        <input type="text" class="blank" data-answer="調理が簡単|調理がかんたん" /><br>
+　　 
+        <input type="text" class="blank" data-answer="栄養価が高い|栄養価がたかい" /><br>
+　　 
+        <input type="text" class="blank" data-answer="嗜好にあったもの|嗜好に合ったもの" />
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q5')">模範解答を表示</button>
+      <div id="m_no4_q5" class="model-answer">
+        軽い／腐敗しにくい／調理が簡単／栄養価が高い／嗜好にあったもの
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-text">
+⑥ 次のロープの結び方を記せ。<br>
+　　 
+        <input type="text" class="blank" data-answer="ブーリン結び" /><br>
+　　 
+        <input type="text" class="blank" data-answer="フィッシャーマン結び|テグス結び" /><br>
+　　 
+        <input type="text" class="blank" data-answer="プルージック結び" /><br>
+　　 
+        <input type="text" class="blank" data-answer="８の字結び|八の字結び|エイトノット" />
+      </div>
+      <button type="button" onclick="toggleModel('m_no4_q6')">模範解答を表示</button>
+      <div id="m_no4_q6" class="model-answer">
+        ブーリン結び／フィッシャーマン結び（テグス結び）／プルージック結び／８の字結び
+      </div>
+    </div>
+  </div>
+
+  <!-- 採点結果モーダル -->
+  <div id="modalOverlay">
+    <div id="modalBox">
+      <div id="modalScore"></div>
+      <div id="modalId"></div>
+      <button id="modalOkBtn" onclick="closeResultModal()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    let isAnswerMode = false;
+    let lastCorrect = 0;
+    let lastTotal = 0;
+    let lastCode = '';
+
+    function showSection(n) {
+      const sections = document.querySelectorAll('.quiz-section');
+      sections.forEach((sec, idx) => {
+        sec.style.display = (idx === n - 1) ? 'block' : 'none';
+      });
+      const tabs = document.querySelectorAll('.tab-button');
+      tabs.forEach((btn, idx) => {
+        if (idx === n - 1) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function normalize(str) {
+      if (!str) return '';
+      const zenkaku = '！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠' +
+        'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［￥］＾＿' +
+        '｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～';
+      const hankaku = '!\"#$%&\'()*+,-./0123456789:;<=>?@' +
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_' +
+        '`abcdefghijklmnopqrstuvwxyz{|}~';
+      let s = String(str).trim();
+      s = s.replace(/\s+/g, '');
+      s = s.split('').map(ch => {
+        const idx = zenkaku.indexOf(ch);
+        return idx >= 0 ? hankaku[idx] : ch;
+      }).join('');
+      s = s.replace(/[\u3041-\u3096]/g, c =>
+        String.fromCharCode(c.charCodeAt(0) + 0x60)
+      );
+      return s;
+    }
+
+    function normalizeName(nameRaw) {
+      if (!nameRaw) return '';
+      return nameRaw.replace(/[^A-Za-z]/g, '');
+    }
+
+    function makeCheckCode(score) {
+      const nameInput = document.getElementById('studentName');
+      const rawName = nameInput ? nameInput.value : '';
+      const name = normalizeName(rawName);
+
+      const now = new Date();
+      const yy = String(now.getFullYear()).slice(-2);
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const dateCode = dd + mm + yy; // DDMMYY
+
+      const scoreStr = (typeof score === 'number' && !isNaN(score))
+        ? String(score).padStart(3, '0')
+        : '000';
+
+      const checksumBase = 7;
+      const nameLen = name.length;
+      const checksumVal = checksumBase * nameLen;
+
+      const code = name + scoreStr + dateCode + String(checksumVal);
+      return { name, dateCode, code };
+    }
+
+    function openResultModal(correct, total, code) {
+      lastCorrect = correct;
+      lastTotal = total;
+      lastCode = code;
+
+      const overlay = document.getElementById('modalOverlay');
+      const scoreEl = document.getElementById('modalScore');
+      const idEl = document.getElementById('modalId');
+
+      scoreEl.textContent = `Score=${correct} / ${total}`;
+      idEl.textContent = `ID=${code}`;
+
+      overlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+      });
+    }
+
+    function closeResultModal() {
+      const overlay = document.getElementById('modalOverlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 200);
+
+      const resultArea = document.getElementById('resultArea');
+      if (resultArea) {
+        resultArea.textContent = `Score=${lastCorrect} / ${lastTotal} / ID=${lastCode}`;
+        resultArea.style.color = 'red';
+        if (!isAnswerMode) {
+          resultArea.style.visibility = 'visible';
+        }
+      }
+    }
+
+    function checkAnswers() {
+      const nameInput = document.getElementById('studentName');
+      const rawName = nameInput ? nameInput.value : '';
+      const normalizedName = normalizeName(rawName);
+      if (!normalizedName) {
+        alert("氏名を入力してください");
+        return;
+      }
+
+      const inputs = document.querySelectorAll('input.blank');
+      let total = 0;
+      let correct = 0;
+
+      inputs.forEach(input => {
+        const ansRaw = input.dataset.answer || '';
+        if (!ansRaw) return;
+
+        total++;
+        const user = normalize(input.value);
+        const answers = ansRaw.split('|').map(a => normalize(a));
+
+        if (user && answers.includes(user)) {
+          input.classList.add('correct');
+          input.classList.remove('incorrect');
+          correct++;
+        } else {
+          input.classList.remove('correct');
+          if (user !== '') {
+            input.classList.add('incorrect');
+          } else {
+            input.classList.remove('incorrect');
+          }
+        }
+      });
+
+      const info = makeCheckCode(correct);
+      const codeDisplay = info.code;
+      openResultModal(correct, total, codeDisplay);
+    }
+
+    function showAllAnswers() {
+      if (isAnswerMode) return;
+      const models = document.querySelectorAll('.model-answer');
+      models.forEach(m => { m.style.display = 'block'; });
+      isAnswerMode = true;
+
+      const resultArea = document.getElementById('resultArea');
+      if (resultArea) {
+        resultArea.style.visibility = 'hidden';
+      }
+    }
+
+    function resetAll() {
+      const inputs = document.querySelectorAll('input.blank');
+      inputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('correct');
+        input.classList.remove('incorrect');
+      });
+      const textareas = document.querySelectorAll('textarea');
+      textareas.forEach(t => t.value = '');
+      const models = document.querySelectorAll('.model-answer');
+      models.forEach(m => { m.style.display = 'none'; });
+
+      const resultArea = document.getElementById('resultArea');
+      if (resultArea) {
+        resultArea.textContent = '';
+        resultArea.style.visibility = 'visible';
+        resultArea.style.color = '';
+      }
+      isAnswerMode = false;
+    }
+
+    function toggleModel(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = (el.style.display === 'none' || el.style.display === '')
+        ? 'block'
+        : 'none';
+    }
+  </script>
+</body>
+</html>
